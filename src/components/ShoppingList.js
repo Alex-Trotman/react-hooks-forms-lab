@@ -3,26 +3,9 @@ import ItemForm from "./ItemForm";
 import Filter from "./Filter";
 import Item from "./Item";
 
-function ShoppingList({ items }) {
+function ShoppingList({ items, createElement }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [typedCategory, setTypedCategory] = useState("All")
-
-  function handleCategoryChange(event) {
-    setSelectedCategory(event.target.value);
-  }
-
-  function handleSearchChange(event){
-    console.log("Changed!")
-    if (event.target.value === ""){
-      setSelectedCategory("All")
-    } else if (event.target.value === "Produce"){
-      setSelectedCategory("Produce")
-    } else if (event.target.value === "Dairy"){
-      setSelectedCategory("Dairy")
-    } else if (event.target.value === "Dessert"){
-      setSelectedCategory("Dessert")
-    } else (setSelectedCategory("All"))
-  }
+  const [search, setSearch] = useState("");
 
   const itemsToDisplay = items.filter((item) => {
     if (selectedCategory === "All") return true;
@@ -30,21 +13,32 @@ function ShoppingList({ items }) {
     return item.category === selectedCategory;
   });
 
-  function handleNameChange(){
-    console.log("Name changed!")
-  }
+  const searchedItems = itemsToDisplay.filter((item) => {
+    if (search === "") return true;
+    if (search !== "") {
+      return item.name.includes(search);
+    }
+  });
 
-  function handleNewCategoryChange(){
-    console.log("Category changed!")
+  function onSearchChange(inputSearch) {
+    setSearch(inputSearch);
   }
-
 
   return (
     <div className="ShoppingList">
-      <ItemForm onItemFormSubmit={null} handleNameChange={handleNameChange} handleCategoryChange={handleNewCategoryChange}/>
-      <Filter onSearchChange={handleSearchChange} onCategoryChange={handleCategoryChange} />
+      <ItemForm
+        onItemFormSubmit={createElement}
+        createElement={createElement}
+      />
+      <Filter
+        category={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        search={search}
+        setSearch={setSearch}
+        onSearchChange={onSearchChange}
+      />
       <ul className="Items">
-        {itemsToDisplay.map((item) => (
+        {searchedItems.map((item) => (
           <Item key={item.id} name={item.name} category={item.category} />
         ))}
       </ul>
